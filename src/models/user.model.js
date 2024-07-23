@@ -6,7 +6,8 @@ const userSchema = new Schema({
     email:{type: String, require: true, unique: true},
     age:{type: Number, require: true},
     password:{type: String, require: true},
-    role:{type: String, enum: ["admin","user"], default: "user"}
+    role:{type: String, enum: ["admin","user"], default: "user"},
+    cart: {type:Schema.Types.ObjectId, ref: "cart"}
 })
 
 export const userModel = model("user", userSchema)

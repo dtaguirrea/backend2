@@ -1,7 +1,7 @@
 import express from "express"
 import mongoose from "mongoose"
 import cookieParser from "cookie-parser"
-import sessionRoutes from "./routes/session.routes.js"
+import sessionRoutes from "./routes/auth.routes.js"
 import userRoutes from "./routes/user.routes.js"
 
 const app = express()

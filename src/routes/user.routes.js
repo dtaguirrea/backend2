@@ -13,29 +13,13 @@ router.get("/", async (req,res)=>{
     }
 })
 
-router.post("/", async(req,res)=>{
-    const { first_name, last_name, email, age, password } = req.body
-
-    if(!first_name || !last_name || !email || !age || !password){
-        return res.status(400).json({error:"Falta información"})
-    }
-
+router.get("/:id", async(req,res)=>{
     try{
-        const hashPassword= await createHash(password);
-
-        const user= await userModel.create({
-            first_name,
-            last_name,
-            email,
-            age,
-            password: hashPassword
-        })
-
-        res.status(201).json(user);
-    } catch(error){
-        res
-        .status(500)
-        .json({ error: "Error al crear el usuario", details: error.message})
+        const { id } = req.params
+        const user = await userModel.findById(id)
+        res.status(200).json(user)
+    } catch (error){
+        res.status(500).json({error: "Error al obtener al usuario", details: error.message})
     }
 })
 

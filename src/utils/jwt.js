@@ -2,11 +2,8 @@ import jwt from "jsonwebtoken"
 
 const PRIVATE_KEY = "s3cr3t"
 
-export function generateToken(user){
-    const payload= {
-        email: user.email,
-        rolse: user,role,
-    }
+export function generateToken(payload){
+
     return jwt.sign(payload, PRIVATE_KEY,{
         expiresIn: "5m"
     })
