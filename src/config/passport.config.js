@@ -3,7 +3,7 @@ import local from "passport-local"
 import jwt from "jsonwebtoken"
 import jwtStrategy from "passport-jwt"
 import { userModel } from "../models/user.model.js";
-import { comparePassword } from "../utils/hash.js";
+import { comparePassword, createHash } from "../utils/hash.js";
 
 const LocalStrategy= local.Strategy
 const JWTStrategy = jwtStrategy.Strategy
@@ -31,6 +31,35 @@ const initializePassport = () =>{
                     done(error)
                 }
             }
+        )
+    )
+    passport.use(
+        "register",
+        new LocalStrategy(
+            {usernameField:"email", passReqToCallback: true },
+            async (req, email, password, done)=>{
+                try{
+                    const{ first_name, last_name, age} = req.body
+
+                    const userExists = await userModel.findOne({email})
+
+                    if (userExists){
+                        return done( null, false, { message: "El usuario ya existe"})
+                    }
+                    const hashPassword= await createHash(password)
+
+                    const user = await userModel.create({
+                        first_name,
+                        last_name,
+                        email,
+                        age,
+                        password: hashPassword
+                    })
+                    return done(null,user)
+                } catch(error){
+                    done(error)
+                }
+            } 
         )
     )
     passport.serializeUser((user,done)=>{
