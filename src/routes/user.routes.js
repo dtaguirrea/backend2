@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { userModel } from "../models/user.model.js";
 import { createHash } from "../utils/hash.js";
+import { userDto } from "../dtos/user.dto.js";
 
 const router= Router();
 

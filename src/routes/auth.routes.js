@@ -3,10 +3,14 @@ import { userModel } from "../models/user.model.js";
 import { generateToken } from "../utils/jwt.js";
 import { createHash } from "../utils/hash.js";
 import passport from "passport";
+import { authDto } from "../dtos/auth.dto.js"
+import { userDto } from "../dtos/user.dto.js"
+import { validate } from "../middlewares/validation.middleware.js";
 
 const router = Router()
 
 router.post("/login", 
+    validate(authDto),
     passport.authenticate("login", {
     session: false,
     failureRedirect: "/api/auth/login"
@@ -37,7 +41,10 @@ router.get("/login", (req,res)=>{
     })
 })
 
-router.post("/register", async(req,res)=>{
+router.post("/register", 
+    validate(userDto),
+    passport.authenticate("register"),
+    async(req,res)=>{
     const { first_name, last_name, email, age, role, password} = req.body
 
     if (!first_name || !last_name || !email || !age || !password){
@@ -61,7 +68,9 @@ router.post("/register", async(req,res)=>{
         res.status(500).json({error: "Error al crear el usuario", details: error.message})
     }
 })
-router.get("/current", passport.authenticate("jwt", { session: false}),(req,res)=>{
+router.get("/current", 
+    passport.authenticate("jwt", { session: false}),
+    (req,res)=>{
     console.log(req.user)
     res.status(200).json({
         message: "Bienvenido",
@@ -69,10 +78,10 @@ router.get("/current", passport.authenticate("jwt", { session: false}),(req,res)
     })
 })
 
-router.get("logout", (req,res)=>{
+router.get("/logout", (req,res)=>{
     res.clearCookie("token")
     res.status(200).json({
-        message: "Sesi+on cerrada"
+        message: "Sesion cerrada"
     })
 })
 
