@@ -129,41 +129,49 @@ router.post("/:id/purchase",async (req,res) => {
         }
 
         const productsWithoutStock= []
+        const productsToPurchase= []
         cart.products.forEach(async (p)=>{
             if(p.product.stock < p.quantity){
                 productsWithoutStock.push(p.product.name)
+            } else{
+                productsToPurchase.push(p)
             }
         })
-        if (productsWithoutStock.length >0){
-            return res.status(404).json({
-                error:"Algunos productos no tienen stock suficiente",
-                products: productsWithoutStock
-            })
-        }
+        
         await Promise.all(
-            cart.products.map(async (p)=>{
+            cart.productsToPurchase.map(async (p)=>{
                 const product = await productModel.findById(p.product._id)
                 product.stock -= p.quantity
                 await product.save()
             })
         )
+        if (productsToPurchase>0){
+            const ticket= await ticketModel.create({
+                code: uuid(),
+                purchase_datetime: new Date(),
+                amount: productsToPurchase.reduce(
+                    (acc,curr)=> acc + curr.quantity* curr.product.price,
+                    0
+                ),
+                purchaser: req.user._id
+            })
+            cart.products= cart.products.filter(p=>
+                productsWithoutStock.includes(p.product._id)
+            )
+            await cart.save()
 
-        const ticket= await ticketModel.create({
-            code: uuid(),
-            purchase_datetime: newDate(),
-            amount: cart.products.reduce(
-                (acc,curr)=> acc + curr.quantity* curr.product.price,
-                0
-            ),
-            purchaser: req.user._id
-        })
-        cart.products= []
-        await cart.save()
-
-        res.status(200).json({
-            message:"Compra finalizada",
-            ticket
-        })
+            return res.status(200).json({
+                message:"Compra finalizada",
+                ticket,
+                unprocessedProducts: productsWithoutStock
+            })
+        } else{
+            return res.status(400).json({
+                error:"No hay productos para procesar la compra",
+                unprocessedProducts: productsWithoutStock
+                
+            })
+        }
     } catch(error){
         res.status(500).json({
             error: "Error al finalizar la compra",
