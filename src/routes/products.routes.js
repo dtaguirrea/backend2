@@ -2,7 +2,7 @@ import { Router } from "express"
 import { productModel } from "../models/product.model.js";
 import { validate } from "../middlewares/validation.middleware.js";
 import { productDto } from "../dtos/product.dto.js";
-import { authorizations } from "../middlewares/authorization.middleware.js";
+import { authorization } from "../middlewares/authorization.middleware.js";
 
 const router= Router()
 
@@ -29,8 +29,8 @@ router.get("/:id", async (req,res)=>{
 })
 
 router.post("/", 
-    authorizations(["admin"]),
-    validate(product.Dto),
+    authorization(["admin"]),
+    validate(productDto),
     async(req,res) =>{
         try {
             const { name, description, price, image} = req.body

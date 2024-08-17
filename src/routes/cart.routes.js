@@ -3,8 +3,9 @@ import { cartModel } from "../models/cart.model.js";
 import { productModel } from "../models/product.model.js";
 import { validate } from "../middlewares/validation.middleware.js";
 import { cartDto } from "../dtos/cart.dto.js";
-import { uuid } from "uuidv4";
+import { v4 as uuid } from "uuid";
 import { ticketModel } from "../models/ticket.model.js"
+import {sendPurchaseConfirmationEmail} from "../utils/email.service.js"
 const router= Router()
 
 router.get("/id", async(req,res)=>{
@@ -159,6 +160,8 @@ router.post("/:id/purchase",async (req,res) => {
                 productsWithoutStock.includes(p.product._id)
             )
             await cart.save()
+
+            await sendPurchaseConfirmationEmail(req.user.email, ticket)
 
             return res.status(200).json({
                 message:"Compra finalizada",
