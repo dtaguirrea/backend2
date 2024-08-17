@@ -145,7 +145,7 @@ router.post("/:id/purchase",async (req,res) => {
                 await product.save()
             })
         )
-        if (productsToPurchase>0){
+        if (productsToPurchase.length>0){
             const ticket= await ticketModel.create({
                 code: uuid(),
                 purchase_datetime: new Date(),
