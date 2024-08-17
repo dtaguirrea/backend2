@@ -43,7 +43,7 @@ router.get("/login", (req,res)=>{
 
 router.post("/register", 
     validate(userDto),
-    passport.authenticate("register"),
+    passport.authenticate("register", {session: false}),
     async(req,res)=>{
     const { first_name, last_name, email, age, role, password} = req.body
 

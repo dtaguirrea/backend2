@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken"
 import jwtStrategy from "passport-jwt"
 import { userModel } from "../models/user.model.js";
 import { comparePassword, createHash } from "../utils/hash.js";
+import { config } from "dotenv";
 
 const LocalStrategy= local.Strategy
 const JWTStrategy = jwtStrategy.Strategy
@@ -78,7 +79,7 @@ const initializePassport = () =>{
         new JWTStrategy(
             {
                 jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor]),
-                secretOrKey: "s3cr3t"
+                secretOrKey: process.env.JWT_SECRET
             },
             async (payload,done)=>{
                 try{
