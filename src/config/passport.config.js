@@ -1,10 +1,9 @@
 import passport from "passport";
 import local from "passport-local"
-import jwt from "jsonwebtoken"
 import jwtStrategy from "passport-jwt"
 import { userModel } from "../models/user.model.js";
 import { comparePassword, createHash } from "../utils/hash.js";
-import { config } from "dotenv";
+import { config } from "./config.js";
 
 const LocalStrategy= local.Strategy
 const JWTStrategy = jwtStrategy.Strategy
@@ -79,11 +78,12 @@ const initializePassport = () =>{
         new JWTStrategy(
             {
                 jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor]),
-                secretOrKey: process.env.JWT_SECRET
+                secretOrKey: config.JWT_SECRET
             },
             async (payload,done)=>{
                 try{
-                    return done(null,payload)
+                    const user = await userModel.findOne({ email: payload.email })
+                    return done(null,user)
                 } catch(error){
                     return done(error)
                 }

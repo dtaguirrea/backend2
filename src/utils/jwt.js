@@ -1,17 +1,17 @@
 import jwt from "jsonwebtoken"
 import {config} from "../config/config.js"
 
-const { JWT_SECRET } = config
+
 export function generateToken(payload){
 
-    return jwt.sign(payload, JWT_SECRET,{
-        expiresIn: "5m"
+    return jwt.sign(payload, config.JWT_SECRET,{
+        expiresIn: "20m"
     })
 }
 
 export function veryfyToken(token){
     try{
-        const decoded= jwt.verify(token,JWT_SECRET);
+        const decoded= jwt.verify(token,config.JWT_SECRET);
 
         return decoded
     } catch(error){

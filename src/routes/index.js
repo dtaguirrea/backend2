@@ -8,7 +8,7 @@ import { Router } from "express"
 const router= Router()
 
 router.use("/auth", authRoutes)
-router.use("/cart", authorization(["user"]),cartRoutes)
+router.use("/cart",cartRoutes)
 router.use("/products", productRoutes)
 router.use("/users",userRoutes)
 

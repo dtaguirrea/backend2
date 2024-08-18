@@ -3,6 +3,7 @@ import { productModel } from "../models/product.model.js";
 import { validate } from "../middlewares/validation.middleware.js";
 import { productDto } from "../dtos/product.dto.js";
 import { authorization } from "../middlewares/authorization.middleware.js";
+import passport from "passport";
 
 const router= Router()
 
@@ -29,16 +30,17 @@ router.get("/:id", async (req,res)=>{
 })
 
 router.post("/", 
+    passport.authenticate("jwt", { session: false }),
     authorization(["admin"]),
     validate(productDto),
     async(req,res) =>{
         try {
-            const { name, description, price, image} = req.body
+            const { name, description, price, stock} = req.body
             const product = await productModel.create({
                 name,
                 description,
                 price,
-                image
+                stock
             })
             res.status(201).json(product)
         } catch(error){

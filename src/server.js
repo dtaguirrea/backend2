@@ -7,7 +7,7 @@ import { initializePassport } from "./config/passport.config.js"
 import passport from "passport"
 import { config } from "./config/config.js"
 const app = express()
-const PORT = 5000
+const PORT = config.PORT
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true}))

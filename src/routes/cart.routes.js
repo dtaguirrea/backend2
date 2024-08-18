@@ -6,6 +6,7 @@ import { cartDto } from "../dtos/cart.dto.js";
 import { v4 as uuid } from "uuid";
 import { ticketModel } from "../models/ticket.model.js"
 import {sendPurchaseConfirmationEmail} from "../utils/email.service.js"
+import passport from "passport";
 const router= Router()
 
 router.get("/id", async(req,res)=>{
@@ -18,7 +19,7 @@ router.get("/id", async(req,res)=>{
     }
 })
 
-router.post("/", validate(cartDto), async (req,res)=>{
+router.post("/", passport.authenticate('jwt', {session: false}) ,validate(cartDto), async (req,res)=>{
     try{
         const { products }= req.body
         const cart= await cartModel.create({ products })
@@ -28,7 +29,7 @@ router.post("/", validate(cartDto), async (req,res)=>{
     }
 })
 
-router.post("/:id/products", async (req,res)=>{
+router.post("/:id/products", passport.authenticate('jwt', {session: false}), async (req,res)=>{
     try{
         const { productId, quantity }= req.body
         const productExists = await productModel.findById(productId)
@@ -64,7 +65,7 @@ router.post("/:id/products", async (req,res)=>{
 
 })
 
-router.delete("/:id", async (req,res)=>{
+router.delete("/:id", passport.authenticate('jwt', {session: false}), async (req,res)=>{
     try{
         const { id } = req.params
         const cart = await cartModel.findByIdAndDelete(id)
@@ -78,7 +79,7 @@ router.delete("/:id", async (req,res)=>{
     }
 })
 
-router.delete("/:id/products/:productId", async( req,res )=>{
+router.delete("/:id/products/:productId",passport.authenticate('jwt', {session: false}), async( req,res )=>{
     try{
         const { id, productId }= req.params
         const cart= await cartModel.findById(id)
@@ -100,7 +101,7 @@ router.delete("/:id/products/:productId", async( req,res )=>{
     }
 )
 
-router.delete("/:id/products", async(req,res)=>{
+router.delete("/:id/products", passport.authenticate('jwt', {session: false}), async(req,res)=>{
     try{
         const { id }= req.params
         const cart= await cartModel.findById(id)
@@ -117,7 +118,7 @@ router.delete("/:id/products", async(req,res)=>{
     }
 })
 
-router.post("/:id/purchase",async (req,res) => {
+router.post("/:id/purchase",passport.authenticate('jwt', {session: false}), async (req,res) => {
     try{
         const { id }= req.params
 
@@ -140,7 +141,7 @@ router.post("/:id/purchase",async (req,res) => {
         })
         
         await Promise.all(
-            cart.productsToPurchase.map(async (p)=>{
+            productsToPurchase.map(async (p)=>{
                 const product = await productModel.findById(p.product._id)
                 product.stock -= p.quantity
                 await product.save()
@@ -154,7 +155,7 @@ router.post("/:id/purchase",async (req,res) => {
                     (acc,curr)=> acc + curr.quantity* curr.product.price,
                     0
                 ),
-                purchaser: req.user._id
+                purchaser: req.user.email
             })
             cart.products= cart.products.filter(p=>
                 productsWithoutStock.includes(p.product._id)
