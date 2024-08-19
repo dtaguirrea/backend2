@@ -49,4 +49,32 @@ router.post("/",
     }
 )
 
+router.delete("/:id", 
+    passport.authenticate('jwt', { session: false }), 
+    authorization(['admin']),
+    async (req, res) => {
+        const { id } = req.params;
+        await productModel.findByIdAndDelete(id);
+        res.status(204).json({ message: "Producto Eliminado" });
+    }
+);
+
+router.put("/:id", 
+    passport.authenticate('jwt', { session: false }), 
+    authorization(['admin']),
+    async (req, res) => {
+        try {
+            const { id } = req.params
+            const updates = req.body
+            const product = await productModel.findByIdAndUpdate(id, updates, { new: true });
+            if (!product) {
+                return res.status(404).json({ message: "Product not found" });
+            }
+            res.status(200).json(product);
+        } catch (error) {
+            res.status(500).json({ error: "Error updating product", details: error.message });
+        }
+    }
+);
+
 export default router

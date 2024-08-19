@@ -6,7 +6,7 @@ import passport from "passport";
 import { authDto } from "../dtos/auth.dto.js"
 import { userDto } from "../dtos/user.dto.js"
 import { validate } from "../middlewares/validation.middleware.js";
-
+import { userDataTransformationDTO } from "../dtos/user.dto.js";
 const router = Router()
 
 router.post("/login", 
@@ -70,10 +70,10 @@ router.post("/register",
 router.get("/current", 
     passport.authenticate("jwt", { session: false}),
     (req,res)=>{
-    console.log(req.user)
+    const user = userDataTransformationDTO(req.user)
     res.status(200).json({
         message: "Bienvenido",
-        user: req.user
+        user: user
     })
 })
 

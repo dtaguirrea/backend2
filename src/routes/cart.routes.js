@@ -7,6 +7,7 @@ import { v4 as uuid } from "uuid";
 import { ticketModel } from "../models/ticket.model.js"
 import {sendPurchaseConfirmationEmail} from "../utils/email.service.js"
 import passport from "passport";
+import { authorization } from "../middlewares/authorization.middleware.js";
 const router= Router()
 
 router.get("/id", async(req,res)=>{
@@ -29,7 +30,7 @@ router.post("/", passport.authenticate('jwt', {session: false}) ,validate(cartDt
     }
 })
 
-router.post("/:id/products", passport.authenticate('jwt', {session: false}), async (req,res)=>{
+router.post("/:id/products", passport.authenticate('jwt', {session: false}),authorization(['user']), async (req,res)=>{
     try{
         const { productId, quantity }= req.body
         const productExists = await productModel.findById(productId)
